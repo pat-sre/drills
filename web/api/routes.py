@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from .config import ALLOWED_PATH_CHARS
+from .config import ALLOWED_PATH_CHARS, CATEGORIES
 from .db import get_all_stats, record_attempt, reset_stats
 from .exercises import discover_exercises, get_exercise_code
 from .runner import run_code
@@ -22,6 +22,12 @@ def validate_path(value: str, name: str = "path") -> str:
     if not all(c in ALLOWED_PATH_CHARS for c in value.lower()):
         raise HTTPException(status_code=400, detail=f"Invalid {name}: {value}")
     return value
+
+
+@router.get("/categories")
+def list_categories() -> dict:
+    """List category to topic mappings."""
+    return CATEGORIES
 
 
 @router.get("/exercises")

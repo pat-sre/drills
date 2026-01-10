@@ -125,6 +125,38 @@ body {
     color: var(--text-sidebar);
 }
 
+/* Category tabs */
+#category-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-sidebar);
+}
+
+#category-tabs button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--border-sidebar);
+    border-radius: 4px;
+    color: var(--text-sidebar-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+#category-tabs button:hover {
+    background: var(--sidebar-hover);
+    color: var(--text-sidebar);
+}
+
+#category-tabs button.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
 .topic {
     margin-bottom: 1.5rem;
 }

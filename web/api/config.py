@@ -5,7 +5,13 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 DB_PATH = Path(__file__).parent.parent / "drills.db"
 
 # Exercise topics to scan
-TOPICS = ["sorting", "graphs", "trees"]
+TOPICS = ["sorting", "trees", "graphs", "pytorch"]
+
+# Category groupings for tabs
+CATEGORIES = {
+    "DSA": ["sorting", "trees", "graphs"],
+    "ML": ["pytorch"],
+}
 
 # Code execution settings
 CODE_TIMEOUT = 10  # seconds

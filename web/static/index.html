@@ -26,8 +26,22 @@
                     <span x-text="darkMode ? 'Light' : 'Dark'"></span>
                 </button>
             </div>
+            <div id="category-tabs">
+                <button
+                    @click="setCategory('DSA')"
+                    :class="{ active: activeCategory === 'DSA' }"
+                >
+                    DSA
+                </button>
+                <button
+                    @click="setCategory('ML')"
+                    :class="{ active: activeCategory === 'ML' }"
+                >
+                    ML
+                </button>
+            </div>
             <template
-                x-for="(exercises, topic) in exercisesByTopic"
+                x-for="(exercises, topic) in getFilteredExercises()"
                 :key="topic"
             >
                 <div class="topic">

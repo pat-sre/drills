@@ -3,7 +3,9 @@ let editor = null;
 
 function app() {
     return {
+        categories: {},
         exercisesByTopic: {},
+        activeCategory: "DSA",
         current: null,
         skeleton: "",
         output: "",
@@ -42,13 +44,38 @@ function app() {
 
         async loadExercises() {
             try {
-                const res = await fetch("/api/exercises");
-                if (res.ok) {
-                    this.exercisesByTopic = await res.json();
+                const [catRes, exRes] = await Promise.all([
+                    fetch("/api/categories"),
+                    fetch("/api/exercises"),
+                ]);
+                if (catRes.ok) {
+                    this.categories = await catRes.json();
+                }
+                if (exRes.ok) {
+                    this.exercisesByTopic = await exRes.json();
                 }
             } catch (err) {
                 console.error("Failed to load exercises:", err);
             }
+        },
+
+        setCategory(category) {
+            this.activeCategory = category;
+        },
+
+        getTopicsForCategory() {
+            return this.categories[this.activeCategory] || [];
+        },
+
+        getFilteredExercises() {
+            const topics = this.getTopicsForCategory();
+            const result = {};
+            for (const topic of topics) {
+                if (this.exercisesByTopic[topic]) {
+                    result[topic] = this.exercisesByTopic[topic];
+                }
+            }
+            return result;
         },
 
         async selectExercise(topic, name) {
@@ -59,7 +86,10 @@ function app() {
                 }
 
                 const data = await res.json();
-                this.skeleton = data.code;
+                // Hide boilerplate (if __name__ block) - show only the function
+                const code =
+                    data.code.split(/\nif __name__ == /)[0].trimEnd() + "\n";
+                this.skeleton = code;
                 this.current = { topic, name };
                 this.output = "";
                 this.passed = false;
