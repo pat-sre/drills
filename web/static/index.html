@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Drills</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css"
+        />
+        <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body x-data="app()" x-init="init()">
+        <nav id="sidebar">
+            <div id="sidebar-header">
+                <h1>Drills</h1>
+                <button
+                    id="theme-toggle"
+                    @click="toggleTheme()"
+                    title="Toggle dark mode"
+                >
+                    <span x-text="darkMode ? 'Light' : 'Dark'"></span>
+                </button>
+            </div>
+            <template
+                x-for="(exercises, topic) in exercisesByTopic"
+                :key="topic"
+            >
+                <div class="topic">
+                    <h3 x-text="topic"></h3>
+                    <template x-for="ex in exercises" :key="ex.name">
+                        <button
+                            @click="selectExercise(topic, ex.name)"
+                            :class="{ active: current?.topic === topic && current?.name === ex.name }"
+                        >
+                            <span x-text="ex.name.replace(/_/g, ' ')"></span>
+                            <small x-text="ex.passes" class="stats"></small>
+                        </button>
+                    </template>
+                </div>
+            </template>
+        </nav>
+
+        <main>
+            <div class="exercise">
+                <h2
+                    x-text="current ? `${current.topic} / ${current.name.replace(/_/g, ' ')}` : 'Select an exercise'"
+                ></h2>
+                <div id="editor-container"></div>
+                <div id="controls">
+                    <button
+                        @click="submit()"
+                        :disabled="loading"
+                        class="primary"
+                    >
+                        <span x-text="loading ? 'Running...' : 'Submit'"></span>
+                    </button>
+                    <button @click="reset()">Reset</button>
+                    <button
+                        @click="resetStats()"
+                        :disabled="getCurrentPasses() === 0"
+                    >
+                        Reset Stats
+                    </button>
+                </div>
+                <pre
+                    id="output"
+                    :class="getOutputClass()"
+                    x-show="output"
+                    x-text="output"
+                ></pre>
+                <div class="error-hint" x-show="errorType && !passed">
+                    <span x-show="errorType === 'syntax'"
+                        >Syntax Error - Check your code for typos or indentation
+                        issues</span
+                    >
+                    <span x-show="errorType === 'timeout'"
+                        >Timeout - Your code took too long to run</span
+                    >
+                    <span x-show="errorType === 'test_failure'"
+                        >Test Failed - Check the output above</span
+                    >
+                    <span x-show="errorType === 'runtime'"
+                        >Runtime Error - Your code crashed during
+                        execution</span
+                    >
+                </div>
+            </div>
+        </main>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+        <script src="/app.js"></script>
+        <script
+            defer
+            src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"
+        ></script>
+    </body>
+</html>

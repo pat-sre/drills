@@ -34,6 +34,13 @@ def partition(l, r, nums):
 
 
 if __name__ == "__main__":
-    from tests import run_sort_tests
+    if __package__:
+        from ..tests import run_sort_tests
+    else:
+        import sys
+        from pathlib import Path
+
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from tests import run_sort_tests
 
     run_sort_tests(sort)

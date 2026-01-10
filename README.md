@@ -1,39 +1,51 @@
 # Drills
 
-A collection of algorithm and data structure exercises for practice. Each drill provides a skeleton to implement and tests to verify your solution.
+A personal practice tool for algorithm and data structure implementations. Write code, run tests, track progress.
 
-## Structure
-
-Each topic contains subdirectories for specific algorithms/concepts:
-
-```
-concept/
-  task/
-    exercise.py     # Skeleton - implement your solution here
-    solution.py     # Reference implementation
-    tests.py        # Test suite
-```
-
-## Current Topics
-
-### Sorting
-- **Insertion Sort** - `sorting/insertion/`
-- **Merge Sort** - `sorting/merge/`
-- **Quicksort** - `sorting/quicksort/`
-
-## Usage
-
-1. Navigate to the algorithm you want to practice
-2. Implement the function in `sort.py` (or equivalent skeleton file)
-3. Run the file to execute tests:
+## Quick Start
 
 ```bash
-cd sorting/insertion
-python sort.py
+pip install fastapi uvicorn
+uvicorn web.app:app --reload
 ```
 
-4. Compare your solution with `solution.py` if needed
+Open http://localhost:8000
 
-## Adding New Drills
+## How It Works
 
-More topics coming soon (e.g., searching, trees, graphs, dynamic programming).
+1. Select an exercise from the sidebar
+2. Implement the function in the editor
+3. Submit to run tests
+4. Track your pass count over time
+
+Each exercise has a skeleton (`exercise.py`), reference solution (`solution.py`), and test suite.
+
+## CLI
+
+Run exercises directly:
+
+```bash
+python -m sorting.insertion_sort.exercise
+```
+
+## Topics
+
+| Category | Exercises |
+|----------|-----------|
+| Sorting | Insertion sort, Merge sort, Quicksort |
+| Graphs | BFS, DFS, Dijkstra |
+| Trees | BFS, DFS |
+
+## Adding Exercises
+
+Create a new directory under a topic:
+
+```
+topic/
+  new_algorithm/
+    exercise.py   # Skeleton with function to implement
+    solution.py   # Reference implementation
+    tests.py      # Test suite with run_{func}_tests(func)
+```
+
+The web UI auto-discovers new exercises on reload.
