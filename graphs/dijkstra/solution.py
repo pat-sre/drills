@@ -40,8 +40,8 @@ def dijkstra(start):
 
 if __name__ == "__main__":
     if __package__:
-        from .tests import run_dijkstra_tests
+        from .tests import run_tests
     else:
-        from tests import run_dijkstra_tests
+        from tests import run_tests
 
-    run_dijkstra_tests(dijkstra)
+    run_tests(dijkstra)

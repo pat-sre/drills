@@ -10,7 +10,7 @@ else:
     from tree import Tree
 
 
-def run_bfs_tests(bfs_func):
+def run_tests(bfs_func):
     """
     Reusable test suite for tree BFS algorithm.
 

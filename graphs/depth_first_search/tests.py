@@ -8,7 +8,7 @@ else:
     from test_utils import make_graph, single_node
 
 
-def run_dfs_tests(dfs_func):
+def run_tests(dfs_func):
     """
     Reusable test suite for DFS algorithm.
 

@@ -11,8 +11,6 @@
 #
 # DFS preorder: [1, 2, 4, 5, 3]
 #
-# Hint: Recursion naturally follows the "go deep first" pattern.
-#
 # Node structure: node.val, node.left, node.right
 #
 def dfs(root: "Tree | None") -> list:
@@ -21,8 +19,8 @@ def dfs(root: "Tree | None") -> list:
 
 if __name__ == "__main__":
     if __package__:
-        from .tests import run_dfs_tests
+        from .tests import run_tests
     else:
-        from tests import run_dfs_tests
+        from tests import run_tests
 
-    run_dfs_tests(dfs)
+    run_tests(dfs)

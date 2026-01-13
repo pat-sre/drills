@@ -1,0 +1,10 @@
+{"messages": [{"role": "system", "content": "You are a helpful assistant that answers questions concisely."}, {"role": "user", "content": "What is the capital of France?"}, {"role": "assistant", "content": "Paris."}]}
+{"messages": [{"role": "system", "content": "You are a helpful assistant that answers questions concisely."}, {"role": "user", "content": "What is 2 + 2?"}, {"role": "assistant", "content": "4."}]}
+{"messages": [{"role": "system", "content": "You are a helpful assistant that answers questions concisely."}, {"role": "user", "content": "What color is the sky?"}, {"role": "assistant", "content": "Blue."}]}
+{"messages": [{"role": "system", "content": "You are a helpful assistant that answers questions concisely."}, {"role": "user", "content": "What is the largest planet?"}, {"role": "assistant", "content": "Jupiter."}]}
+{"messages": [{"role": "system", "content": "You are a helpful assistant that answers questions concisely."}, {"role": "user", "content": "Who wrote Romeo and Juliet?"}, {"role": "assistant", "content": "William Shakespeare."}]}
+{"messages": [{"role": "user", "content": "Hello!"}, {"role": "assistant", "content": "Hello! How can I help you today?"}]}
+{"messages": [{"role": "user", "content": "What is Python?"}, {"role": "assistant", "content": "Python is a programming language."}]}
+{"messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Translate 'hello' to Spanish."}, {"role": "assistant", "content": "Hola."}]}
+{"messages": [{"role": "user", "content": "What year did WW2 end?"}, {"role": "assistant", "content": "1945."}]}
+{"messages": [{"role": "system", "content": "You are a helpful assistant that answers questions concisely."}, {"role": "user", "content": "What is H2O?"}, {"role": "assistant", "content": "Water."}]}

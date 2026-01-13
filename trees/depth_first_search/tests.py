@@ -10,7 +10,7 @@ else:
     from tree import Tree
 
 
-def run_dfs_tests(dfs_func):
+def run_tests(dfs_func):
     """
     Reusable test suite for tree DFS algorithm (preorder).
 

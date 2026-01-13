@@ -11,8 +11,8 @@ def dijkstra(graph: dict[str, list[tuple[str, int]]], start: str) -> dict[str, i
 
 if __name__ == "__main__":
     if __package__:
-        from .tests import run_dijkstra_tests
+        from .tests import run_tests
     else:
-        from tests import run_dijkstra_tests
+        from tests import run_tests
 
-    run_dijkstra_tests(dijkstra)
+    run_tests(dijkstra)

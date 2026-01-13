@@ -3,13 +3,13 @@ import torch.nn as nn
 import torch.optim as optim
 
 
-def run_train_tests(train_func):
+def run_tests(train_func):
     """
     Test suite for basic training loop.
 
     Args:
         train_func: A function that takes (model, loss_fn, optimizer, X, y, epochs)
-                   and returns the final epoch's average loss.
+                   and returns the final epoch's loss.
     """
     print(f"Running tests for {train_func.__name__}...\n")
 
@@ -19,10 +19,10 @@ def run_train_tests(train_func):
     loss_fn = nn.MSELoss()
     optimizer = optim.SGD(model.parameters(), lr=0.0001)
 
-    X = torch.arange(100).float()
-    y = X / 2
+    X = torch.arange(100).float().unsqueeze(1)  # Shape: (100, 1)
+    y = X / 2  # Shape: (100, 1)
 
-    initial_loss = _compute_avg_loss(model, loss_fn, X, y)
+    initial_loss = _compute_loss(model, loss_fn, X, y)
     final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=5)
 
     assert final_loss is not None, "Test 1 failed: function should return a loss value"
@@ -39,8 +39,8 @@ def run_train_tests(train_func):
     initial_bias = model.bias.data.clone()
 
     optimizer = optim.SGD(model.parameters(), lr=0.001)
-    X = torch.arange(50).float()
-    y = X * 2 + 1
+    X = torch.arange(50).float().unsqueeze(1)  # Shape: (50, 1)
+    y = X * 2 + 1  # Shape: (50, 1)
 
     train_func(model, loss_fn, optimizer, X, y, epochs=3)
 
@@ -56,8 +56,8 @@ def run_train_tests(train_func):
     model = nn.Linear(1, 1)
     optimizer = optim.SGD(model.parameters(), lr=0.001)
 
-    X = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0])
-    y = torch.tensor([2.0, 4.0, 6.0, 8.0, 10.0])  # y = 2x
+    X = torch.tensor([[1.0], [2.0], [3.0], [4.0], [5.0]])  # Shape: (5, 1)
+    y = torch.tensor([[2.0], [4.0], [6.0], [8.0], [10.0]])  # y = 2x
 
     train_func(model, loss_fn, optimizer, X, y, epochs=100)
 
@@ -75,8 +75,8 @@ def run_train_tests(train_func):
     model = nn.Linear(1, 1)
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    X = torch.tensor([1.0, 2.0])
-    y = torch.tensor([1.0, 2.0])
+    X = torch.tensor([[1.0], [2.0]])  # Shape: (2, 1)
+    y = torch.tensor([[1.0], [2.0]])
 
     final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=10)
     assert final_loss >= 0, "Test 4 failed: loss should be non-negative"
@@ -87,22 +87,37 @@ def run_train_tests(train_func):
     model = nn.Linear(1, 1)
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    X = torch.arange(10).float()
+    X = torch.arange(10).float().unsqueeze(1)  # Shape: (10, 1)
     y = X
 
     final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=1)
     assert final_loss is not None, "Test 5 failed: should work with single epoch"
     print("Test 5 passed: Works with single epoch")
 
+    # Test 6: Catches missing zero_grad()
+    # Without zero_grad(), gradients accumulate and prevent proper convergence
+    torch.manual_seed(42)
+    model = nn.Linear(1, 1)
+    loss_fn = nn.MSELoss()
+    optimizer = optim.SGD(model.parameters(), lr=0.5)
+
+    X = torch.linspace(0, 1, 20).unsqueeze(1)
+    y = X * 2
+
+    final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=100)
+
+    assert final_loss < 0.01, (
+        f"Test 6 failed: Loss is {final_loss:.4f} after 100 epochs (expected < 0.01). "
+        "Did you forget to call zero_grad()?"
+    )
+    print("Test 6 passed: Gradients cleared correctly each epoch")
+
     print("\nAll tests passed!")
 
 
-def _compute_avg_loss(model, loss_fn, X, y):
-    """Helper to compute average loss without training."""
-    total_loss = 0.0
+def _compute_loss(model, loss_fn, X, y):
+    """Helper to compute loss without training."""
     with torch.no_grad():
-        for i in range(len(X)):
-            output = model(X[i].unsqueeze(0))
-            loss = loss_fn(output, y[i].unsqueeze(0))
-            total_loss += loss.item()
-    return total_loss / len(X)
+        output = model(X)
+        loss = loss_fn(output, y)
+    return loss.item()

@@ -26,7 +26,7 @@ SORT_TESTS = [
 ]
 
 
-def run_sort_tests(sort_func):
+def run_tests(sort_func):
     """
     Reusable test suite for sorting algorithms.
 

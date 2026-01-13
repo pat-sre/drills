@@ -8,7 +8,7 @@ else:
     from test_utils import make_graph, single_node
 
 
-def run_dijkstra_tests(dijkstra_func):
+def run_tests(dijkstra_func):
     """
     Reusable test suite for Dijkstra's algorithm.
 

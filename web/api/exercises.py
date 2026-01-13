@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from .config import PROJECT_ROOT, TOPICS
@@ -36,36 +37,33 @@ def get_exercise_code(topic: str, name: str) -> str | None:
     return path.read_text()
 
 
-def _derive_func_name(topic: str, name: str) -> str:
-    """Derive function name from exercise name using conventions."""
-    # Sorting always uses 'sort'
-    if topic == "sorting":
-        return "sort"
-
-    # Search algorithms use abbreviations
-    if name.endswith("_first_search"):
-        # breadth_first_search -> bfs, depth_first_search -> dfs
-        return "".join(word[0] for word in name.split("_"))
-
-    # Default: use exercise name as-is
-    return name
+def _discover_func_name(exercise_path: Path) -> str | None:
+    """Discover the main function name from an exercise file."""
+    if not exercise_path.exists():
+        return None
+    content = exercise_path.read_text()
+    match = re.search(r"^def (\w+)\(", content, re.MULTILINE)
+    if match:
+        return match.group(1)
+    return None
 
 
 def get_test_config(topic: str, name: str) -> dict[str, str]:
-    """Auto-derive test configuration from naming conventions."""
-    func_name = _derive_func_name(topic, name)
+    """Get test configuration for an exercise."""
+    # Discover function name from exercise file
+    exercise_path = PROJECT_ROOT / topic / name / "exercise.py"
+    func_name = _discover_func_name(exercise_path) or name
 
     # Sorting uses topic-level tests
     if topic == "sorting":
         return {
             "func_name": func_name,
-            "test_import": "from sorting.tests import run_sort_tests",
-            "test_call": "run_sort_tests(sort)",
+            "test_import": "from sorting.tests import run_tests",
+            "test_call": f"run_tests({func_name})",
         }
 
-    # Other topics use per-exercise tests
     return {
         "func_name": func_name,
-        "test_import": f"from {topic}.{name}.tests import run_{func_name}_tests",
-        "test_call": f"run_{func_name}_tests({func_name})",
+        "test_import": f"from {topic}.{name}.tests import run_tests",
+        "test_call": f"run_tests({func_name})",
     }

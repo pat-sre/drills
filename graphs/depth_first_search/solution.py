@@ -37,8 +37,8 @@ def dfs(start):
 
 if __name__ == "__main__":
     if __package__:
-        from .tests import run_dfs_tests
+        from .tests import run_tests
     else:
-        from tests import run_dfs_tests
+        from tests import run_tests
 
-    run_dfs_tests(dfs)
+    run_tests(dfs)

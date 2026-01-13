@@ -8,7 +8,7 @@ else:
     from test_utils import make_graph, single_node
 
 
-def run_bfs_tests(bfs_func):
+def run_tests(bfs_func):
     """
     Reusable test suite for BFS algorithm.
 

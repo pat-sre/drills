@@ -36,8 +36,8 @@ def bfs(root):
 
 if __name__ == "__main__":
     if __package__:
-        from .tests import run_bfs_tests
+        from .tests import run_tests
     else:
-        from tests import run_bfs_tests
+        from tests import run_tests
 
-    run_bfs_tests(bfs)
+    run_tests(bfs)
