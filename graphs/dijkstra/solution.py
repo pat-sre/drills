@@ -1,21 +1,7 @@
-# Intuition:
-#   Greedy algorithm that always processes the node with smallest
-#   known distance. Use a priority queue (min-heap) to efficiently
-#   get the next closest unvisited node.
-
 import heapq
 
-if __package__:
-    from ..graph import GraphNode
-else:
-    import sys
-    from pathlib import Path
 
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from graph import GraphNode
-
-
-def dijkstra(start):
+def solve(start):
     if start is None:
         return {}
 
@@ -36,12 +22,3 @@ def dijkstra(start):
                 heapq.heappush(pq, (new_dist, id(neighbor), neighbor))
 
     return {node: dist for node, dist in distances.items()}
-
-
-if __name__ == "__main__":
-    if __package__:
-        from .tests import run_tests
-    else:
-        from tests import run_tests
-
-    run_tests(dijkstra)

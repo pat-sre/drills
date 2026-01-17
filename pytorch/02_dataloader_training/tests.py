@@ -3,98 +3,96 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
+from test_utils import run_all
 
-def run_tests(train_func):
-    """
-    Test suite for DataLoader training.
 
-    Args:
-        train_func: A function that takes (model, loss_fn, optimizer, dataloader, epochs)
-                   and returns the final epoch's average loss.
-    """
-    print(f"Running tests for {train_func.__name__}...\n")
-
-    # Test 1: Returns a loss value
+def run_tests(solve):
     torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    X = torch.arange(20).float().unsqueeze(1) / 20  # Normalize to [0, 1)
-    y = X * 2
-    dataset = TensorDataset(X, y)
-    dataloader = DataLoader(dataset, batch_size=4)
+    # Test 1 setup
+    t1_model = nn.Linear(1, 1)
+    t1_optimizer = optim.SGD(t1_model.parameters(), lr=0.01)
+    t1_X = torch.arange(20).float().unsqueeze(1) / 20
+    t1_y = t1_X * 2
+    t1_loader = DataLoader(TensorDataset(t1_X, t1_y), batch_size=4)
 
-    final_loss = train_func(model, loss_fn, optimizer, dataloader, epochs=5)
-
-    assert final_loss is not None, "Test 1 failed: function should return a loss value"
-    assert isinstance(final_loss, float), "Test 1 failed: loss should be a float"
-    print(f"Test 1 passed: Returns a float loss ({final_loss:.4f})")
-
-    # Test 2: Loss decreases with training
+    # Test 2 setup
     torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    optimizer = optim.SGD(model.parameters(), lr=0.1)
-
-    X = torch.arange(50).float().unsqueeze(1) / 50  # Normalize
-    y = X * 2
-    dataset = TensorDataset(X, y)
-    dataloader = DataLoader(dataset, batch_size=10)
-
-    initial_loss = _compute_avg_loss(model, loss_fn, dataloader)
-    final_loss = train_func(model, loss_fn, optimizer, dataloader, epochs=50)
-
-    assert final_loss < initial_loss, (
-        f"Test 2 failed: loss should decrease (initial: {initial_loss:.4f}, final: {final_loss:.4f})"
-    )
-    print(f"Test 2 passed: Loss decreased from {initial_loss:.4f} to {final_loss:.4f}")
-
-    # Test 3: Works with different batch sizes
-    torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    optimizer = optim.SGD(model.parameters(), lr=0.1)
-
-    X = torch.arange(15).float().unsqueeze(1) / 15
-    y = X + 0.5
-    dataset = TensorDataset(X, y)
-    dataloader = DataLoader(dataset, batch_size=7)  # Doesn't divide evenly
-
-    final_loss = train_func(model, loss_fn, optimizer, dataloader, epochs=10)
-
-    assert final_loss >= 0, "Test 3 failed: loss should be non-negative"
-    print(f"Test 3 passed: Works with uneven batch size ({final_loss:.4f})")
-
-    # Test 4: Model learns the pattern
-    torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    optimizer = optim.SGD(model.parameters(), lr=0.1)
-
-    X = torch.arange(50).float().unsqueeze(1) / 50
-    y = X * 3
-    dataset = TensorDataset(X, y)
-    dataloader = DataLoader(dataset, batch_size=10)
-
-    train_func(model, loss_fn, optimizer, dataloader, epochs=100)
-
+    t2_model = nn.Linear(1, 1)
+    t2_optimizer = optim.SGD(t2_model.parameters(), lr=0.1)
+    t2_X = torch.arange(50).float().unsqueeze(1) / 50
+    t2_y = t2_X * 2
+    t2_loader = DataLoader(TensorDataset(t2_X, t2_y), batch_size=10)
     with torch.no_grad():
-        pred = model(torch.tensor([[0.5]])).item()  # x=0.5 -> y=1.5
+        t2_initial = sum(
+            nn.MSELoss()(t2_model(x), y).item() for x, y in t2_loader
+        ) / len(t2_loader)
 
-    assert abs(pred - 1.5) < 0.3, (
-        f"Test 4 failed: prediction for x=0.5 should be ~1.5, got {pred:.2f}"
-    )
-    print(f"Test 4 passed: Model learned the pattern (predicts {pred:.2f} for x=0.5)")
+    # Test 3 setup (uneven batch)
+    torch.manual_seed(42)
+    t3_model = nn.Linear(1, 1)
+    t3_optimizer = optim.SGD(t3_model.parameters(), lr=0.1)
+    t3_X = torch.arange(15).float().unsqueeze(1) / 15
+    t3_y = t3_X + 0.5
+    t3_loader = DataLoader(TensorDataset(t3_X, t3_y), batch_size=7)
 
-    print("\nAll tests passed!")
+    # Test 4 setup (learning check)
+    torch.manual_seed(42)
+    t4_model = nn.Linear(1, 1)
+    t4_optimizer = optim.SGD(t4_model.parameters(), lr=0.1)
+    t4_X = torch.arange(50).float().unsqueeze(1) / 50
+    t4_y = t4_X * 3
+    t4_loader = DataLoader(TensorDataset(t4_X, t4_y), batch_size=10)
 
+    tests = [
+        {
+            "name": "returns float loss",
+            "inputs": {
+                "model": t1_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t1_optimizer,
+                "dataloader": t1_loader,
+                "epochs": 5,
+            },
+            "check": lambda r: isinstance(r, float),
+            "fail_msg": lambda r: f"expected float, got {type(r).__name__}",
+        },
+        {
+            "name": "loss decreases",
+            "inputs": {
+                "model": t2_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t2_optimizer,
+                "dataloader": t2_loader,
+                "epochs": 50,
+            },
+            "check": lambda r: r < t2_initial,
+            "fail_msg": lambda r: f"expected loss < {t2_initial:.4f}, got {r:.4f}",
+        },
+        {
+            "name": "works with uneven batch size",
+            "inputs": {
+                "model": t3_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t3_optimizer,
+                "dataloader": t3_loader,
+                "epochs": 10,
+            },
+            "check": lambda r: r >= 0,
+            "fail_msg": lambda r: f"expected non-negative loss, got {r}",
+        },
+        {
+            "name": "model learns pattern",
+            "inputs": {
+                "model": t4_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t4_optimizer,
+                "dataloader": t4_loader,
+                "epochs": 100,
+            },
+            "check": lambda r: abs(t4_model(torch.tensor([[0.5]])).item() - 1.5) < 0.3,
+            "fail_msg": lambda r: f"expected prediction ~1.5 for x=0.5",
+        },
+    ]
 
-def _compute_avg_loss(model, loss_fn, dataloader):
-    """Helper to compute average loss without training."""
-    total_loss = 0.0
-    num_batches = 0
-    with torch.no_grad():
-        for X_batch, y_batch in dataloader:
-            output = model(X_batch)
-            loss = loss_fn(output, y_batch)
-            total_loss += loss.item()
-            num_batches += 1
-    return total_loss / num_batches
+    run_all("dataloader_training", tests, solve)

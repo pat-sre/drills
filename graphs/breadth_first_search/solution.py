@@ -1,21 +1,7 @@
-# Intuition:
-#   Use a queue to explore nodes level by level.
-#   Start from the source node, visit all neighbors,
-#   then visit neighbors of neighbors, etc.
-
 from collections import deque
 
-if __package__:
-    from ..graph import GraphNode
-else:
-    import sys
-    from pathlib import Path
 
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from graph import GraphNode
-
-
-def bfs(start):
+def solve(start):
     if start is None:
         return []
 
@@ -33,12 +19,3 @@ def bfs(start):
                 queue.append(neighbor)
 
     return result
-
-
-if __name__ == "__main__":
-    if __package__:
-        from .tests import run_tests
-    else:
-        from tests import run_tests
-
-    run_tests(bfs)

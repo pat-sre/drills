@@ -1,13 +1,9 @@
-# DataLoader Training
-#
-# Train a model using mini-batches from a DataLoader.
-#
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
 
-def train(
+def solve(
     model: nn.Module,
     loss_fn: nn.Module,
     optimizer: torch.optim.Optimizer,
@@ -31,12 +27,3 @@ def train(
         avg_loss = total_loss / num_batches
 
     return avg_loss
-
-
-if __name__ == "__main__":
-    if __package__:
-        from .tests import run_tests
-    else:
-        from tests import run_tests
-
-    run_tests(train)

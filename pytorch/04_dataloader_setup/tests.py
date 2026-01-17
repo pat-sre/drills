@@ -1,78 +1,57 @@
 import torch
 import torch.nn as nn
 
+from test_utils import run_all
 
-def run_tests(train_func):
-    """
-    Test suite for DataLoader setup.
 
-    Args:
-        train_func: A function that takes (X, y, batch_size, epochs)
-                   and returns a trained model.
-    """
-    print(f"Running tests for {train_func.__name__}...\n")
+def run_tests(solve):
+    # Test 1 setup
+    t1_X = torch.arange(20).float().unsqueeze(1) / 20
+    t1_y = t1_X * 2
 
-    # Test 1: Returns a model
-    X = torch.arange(20).float().unsqueeze(1) / 20
-    y = X * 2
+    # Test 3 setup (small batch)
+    t3_X = torch.arange(50).float().unsqueeze(1) / 50
+    t3_y = t3_X * 2
 
-    model = train_func(X, y, batch_size=4, epochs=50)
+    # Test 4 setup (oversized batch)
+    t4_X = torch.tensor([[0.1], [0.2], [0.3]])
+    t4_y = torch.tensor([[0.2], [0.4], [0.6]])
 
-    assert model is not None, "Test 1 failed: function should return a model"
-    assert isinstance(model, nn.Module), "Test 1 failed: should return nn.Module"
-    print("Test 1 passed: Returns an nn.Module")
+    # Test 5 setup (uneven batch)
+    t5_X = torch.arange(17).float().unsqueeze(1) / 17
+    t5_y = t5_X + 0.5
 
-    # Test 2: Model produces correct output shape
-    with torch.no_grad():
-        pred = model(torch.tensor([[0.5]]))
+    tests = [
+        {
+            "name": "returns nn.Module",
+            "inputs": {"X": t1_X, "y": t1_y, "batch_size": 4, "epochs": 50},
+            "check": lambda r: isinstance(r, nn.Module),
+            "fail_msg": lambda r: f"expected nn.Module, got {type(r).__name__}",
+        },
+        {
+            "name": "model produces correct shape",
+            "inputs": {"X": t1_X, "y": t1_y, "batch_size": 4, "epochs": 50},
+            "check": lambda r: r(torch.tensor([[0.5]])).shape == (1, 1),
+            "fail_msg": lambda r: f"expected shape (1, 1)",
+        },
+        {
+            "name": "learns with small batch size",
+            "inputs": {"X": t3_X, "y": t3_y, "batch_size": 5, "epochs": 200},
+            "check": lambda r: abs(r(torch.tensor([[0.5]])).item() - 1.0) < 0.2,
+            "fail_msg": lambda r: f"expected ~1.0 for x=0.5, got {r(torch.tensor([[0.5]])).item():.2f}",
+        },
+        {
+            "name": "works with oversized batch",
+            "inputs": {"X": t4_X, "y": t4_y, "batch_size": 100, "epochs": 500},
+            "check": lambda r: abs(r(torch.tensor([[0.2]])).item() - 0.4) < 0.1,
+            "fail_msg": lambda r: f"expected ~0.4 for x=0.2, got {r(torch.tensor([[0.2]])).item():.2f}",
+        },
+        {
+            "name": "works with uneven batches",
+            "inputs": {"X": t5_X, "y": t5_y, "batch_size": 4, "epochs": 200},
+            "check": lambda r: abs(r(torch.tensor([[0.5]])).item() - 1.0) < 0.2,
+            "fail_msg": lambda r: f"expected ~1.0 for x=0.5, got {r(torch.tensor([[0.5]])).item():.2f}",
+        },
+    ]
 
-    assert pred.shape == (1, 1), (
-        f"Test 2 failed: expected shape (1, 1), got {pred.shape}"
-    )
-    print("Test 2 passed: Model produces correct output shape")
-
-    # Test 3: Model learns with small batch size
-    X = torch.arange(50).float().unsqueeze(1) / 50
-    y = X * 2
-
-    model = train_func(X, y, batch_size=5, epochs=200)
-
-    with torch.no_grad():
-        pred = model(torch.tensor([[0.5]])).item()  # x=0.5 -> y=1.0
-
-    assert abs(pred - 1.0) < 0.2, (
-        f"Test 3 failed: prediction for x=0.5 should be ~1.0, got {pred:.2f}"
-    )
-    print(
-        f"Test 3 passed: Model learned with batch_size=5 (predicts {pred:.2f} for x=0.5)"
-    )
-
-    # Test 4: Works with batch size larger than dataset
-    X = torch.tensor([[0.1], [0.2], [0.3]])
-    y = torch.tensor([[0.2], [0.4], [0.6]])
-
-    model = train_func(X, y, batch_size=100, epochs=500)
-
-    with torch.no_grad():
-        pred = model(torch.tensor([[0.2]])).item()
-
-    assert abs(pred - 0.4) < 0.1, (
-        f"Test 4 failed: prediction for x=0.2 should be ~0.4, got {pred:.2f}"
-    )
-    print(f"Test 4 passed: Works with oversized batch (predicts {pred:.2f} for x=0.2)")
-
-    # Test 5: Works with uneven batch size
-    X = torch.arange(17).float().unsqueeze(1) / 17
-    y = X + 0.5
-
-    model = train_func(X, y, batch_size=4, epochs=200)
-
-    with torch.no_grad():
-        pred = model(torch.tensor([[0.5]])).item()  # x=0.5 -> y=1.0
-
-    assert abs(pred - 1.0) < 0.2, (
-        f"Test 5 failed: prediction for x=0.5 should be ~1.0, got {pred:.2f}"
-    )
-    print(f"Test 5 passed: Works with uneven batches (predicts {pred:.2f} for x=0.5)")
-
-    print("\nAll tests passed!")
+    run_all("dataloader_setup", tests, solve)

@@ -1,18 +1,9 @@
-# implement Dijkstra's shortest path algorithm
+# Dijkstra's Shortest Path
 #
-# Given a weighted graph (adjacency list with weights) and a start node,
-# return a dict mapping each reachable node to its shortest distance from start.
+# Given a start node, return a dict mapping each node value to its
+# shortest distance from start.
 #
-# Graph format: {node: [(neighbor, weight), ...], ...}
+# Node structure: node.val, node.neighbors (list of (GraphNode, weight) tuples)
 #
-def dijkstra(graph: dict[str, list[tuple[str, int]]], start: str) -> dict[str, int]:
+def solve(start: "GraphNode | None") -> dict:
     pass
-
-
-if __name__ == "__main__":
-    if __package__:
-        from .tests import run_tests
-    else:
-        from tests import run_tests
-
-    run_tests(dijkstra)

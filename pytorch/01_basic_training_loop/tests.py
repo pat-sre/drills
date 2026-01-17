@@ -2,122 +2,144 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from test_utils import run_all
 
-def run_tests(train_func):
-    """
-    Test suite for basic training loop.
 
-    Args:
-        train_func: A function that takes (model, loss_fn, optimizer, X, y, epochs)
-                   and returns the final epoch's loss.
-    """
-    print(f"Running tests for {train_func.__name__}...\n")
-
-    # Test 1: Simple linear regression (y = x/2)
+def run_tests(solve):
     torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.0001)
 
-    X = torch.arange(100).float().unsqueeze(1)  # Shape: (100, 1)
-    y = X / 2  # Shape: (100, 1)
-
-    initial_loss = _compute_loss(model, loss_fn, X, y)
-    final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=5)
-
-    assert final_loss is not None, "Test 1 failed: function should return a loss value"
-    assert isinstance(final_loss, float), "Test 1 failed: loss should be a float"
-    assert final_loss < initial_loss, (
-        f"Test 1 failed: loss should decrease (initial: {initial_loss:.4f}, final: {final_loss:.4f})"
-    )
-    print(f"Test 1 passed: Loss decreased from {initial_loss:.4f} to {final_loss:.4f}")
-
-    # Test 2: Model weights should change
-    torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    initial_weight = model.weight.data.clone()
-    initial_bias = model.bias.data.clone()
-
-    optimizer = optim.SGD(model.parameters(), lr=0.001)
-    X = torch.arange(50).float().unsqueeze(1)  # Shape: (50, 1)
-    y = X * 2 + 1  # Shape: (50, 1)
-
-    train_func(model, loss_fn, optimizer, X, y, epochs=3)
-
-    weight_changed = not torch.allclose(model.weight.data, initial_weight)
-    bias_changed = not torch.allclose(model.bias.data, initial_bias)
-
-    assert weight_changed, "Test 2 failed: model weights should change after training"
-    assert bias_changed, "Test 2 failed: model bias should change after training"
-    print("Test 2 passed: Model parameters updated during training")
-
-    # Test 3: Training improves predictions
-    torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    optimizer = optim.SGD(model.parameters(), lr=0.001)
-
-    X = torch.tensor([[1.0], [2.0], [3.0], [4.0], [5.0]])  # Shape: (5, 1)
-    y = torch.tensor([[2.0], [4.0], [6.0], [8.0], [10.0]])  # y = 2x
-
-    train_func(model, loss_fn, optimizer, X, y, epochs=100)
-
-    # Test prediction on new data
+    # Test 1 setup
+    t1_model = nn.Linear(1, 1)
+    t1_loss_fn = nn.MSELoss()
+    t1_optimizer = optim.SGD(t1_model.parameters(), lr=0.0001)
+    t1_X = torch.arange(100).float().unsqueeze(1)
+    t1_y = t1_X / 2
     with torch.no_grad():
-        pred = model(torch.tensor([[3.0]])).item()
+        t1_initial_loss = t1_loss_fn(t1_model(t1_X), t1_y).item()
 
-    assert abs(pred - 6.0) < 1.0, (
-        f"Test 3 failed: prediction for x=3 should be ~6, got {pred:.2f}"
-    )
-    print(f"Test 3 passed: Model learned y=2x (predicts {pred:.2f} for x=3)")
-
-    # Test 4: Works with different dataset sizes
+    # Test 2 setup
     torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    t2_model = nn.Linear(1, 1)
+    t2_initial_weight = t2_model.weight.data.clone()
+    t2_optimizer = optim.SGD(t2_model.parameters(), lr=0.001)
+    t2_X = torch.arange(50).float().unsqueeze(1)
+    t2_y = t2_X * 2 + 1
 
-    X = torch.tensor([[1.0], [2.0]])  # Shape: (2, 1)
-    y = torch.tensor([[1.0], [2.0]])
-
-    final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=10)
-    assert final_loss >= 0, "Test 4 failed: loss should be non-negative"
-    print("Test 4 passed: Works with small dataset")
-
-    # Test 5: Single epoch
+    # Test 3 setup
     torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    t3_model = nn.Linear(1, 1)
+    t3_optimizer = optim.SGD(t3_model.parameters(), lr=0.001)
+    t3_X = torch.tensor([[1.0], [2.0], [3.0], [4.0], [5.0]])
+    t3_y = torch.tensor([[2.0], [4.0], [6.0], [8.0], [10.0]])
 
-    X = torch.arange(10).float().unsqueeze(1)  # Shape: (10, 1)
-    y = X
-
-    final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=1)
-    assert final_loss is not None, "Test 5 failed: should work with single epoch"
-    print("Test 5 passed: Works with single epoch")
-
-    # Test 6: Catches missing zero_grad()
-    # Without zero_grad(), gradients accumulate and prevent proper convergence
+    # Test 4 setup
     torch.manual_seed(42)
-    model = nn.Linear(1, 1)
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.5)
+    t4_model = nn.Linear(1, 1)
+    t4_optimizer = optim.SGD(t4_model.parameters(), lr=0.01)
+    t4_X = torch.tensor([[1.0], [2.0]])
+    t4_y = torch.tensor([[1.0], [2.0]])
 
-    X = torch.linspace(0, 1, 20).unsqueeze(1)
-    y = X * 2
+    # Test 5 setup
+    torch.manual_seed(42)
+    t5_model = nn.Linear(1, 1)
+    t5_optimizer = optim.SGD(t5_model.parameters(), lr=0.01)
+    t5_X = torch.arange(10).float().unsqueeze(1)
+    t5_y = t5_X
 
-    final_loss = train_func(model, loss_fn, optimizer, X, y, epochs=100)
+    # Test 6 setup (zero_grad check)
+    torch.manual_seed(42)
+    t6_model = nn.Linear(1, 1)
+    t6_optimizer = optim.SGD(t6_model.parameters(), lr=0.5)
+    t6_X = torch.linspace(0, 1, 20).unsqueeze(1)
+    t6_y = t6_X * 2
 
-    assert final_loss < 0.01, (
-        f"Test 6 failed: Loss is {final_loss:.4f} after 100 epochs (expected < 0.01). "
-        "Did you forget to call zero_grad()?"
-    )
-    print("Test 6 passed: Gradients cleared correctly each epoch")
+    # Run pre-test training for tests that need state
+    solve(t2_model, nn.MSELoss(), t2_optimizer, t2_X, t2_y, epochs=3)
+    t2_weight_changed = not torch.allclose(t2_model.weight.data, t2_initial_weight)
 
-    print("\nAll tests passed!")
-
-
-def _compute_loss(model, loss_fn, X, y):
-    """Helper to compute loss without training."""
+    solve(t3_model, nn.MSELoss(), t3_optimizer, t3_X, t3_y, epochs=100)
     with torch.no_grad():
-        output = model(X)
-        loss = loss_fn(output, y)
-    return loss.item()
+        t3_pred = t3_model(torch.tensor([[3.0]])).item()
+
+    tests = [
+        {
+            "name": "returns float loss",
+            "inputs": {
+                "model": t1_model,
+                "loss_fn": t1_loss_fn,
+                "optimizer": t1_optimizer,
+                "X": t1_X,
+                "y": t1_y,
+                "epochs": 5,
+            },
+            "check": lambda r: isinstance(r, float) and r < t1_initial_loss,
+            "fail_msg": lambda r: f"expected loss < {t1_initial_loss:.4f}, got {r}",
+        },
+        {
+            "name": "model weights change",
+            "inputs": {
+                "model": nn.Linear(1, 1),
+                "loss_fn": nn.MSELoss(),
+                "optimizer": optim.SGD([torch.nn.Parameter(torch.zeros(1))], lr=0.01),
+                "X": torch.ones(5, 1),
+                "y": torch.ones(5, 1),
+                "epochs": 1,
+            },
+            "check": lambda r: t2_weight_changed,
+            "fail_msg": "model weights should change after training",
+        },
+        {
+            "name": "model learns y=2x",
+            "inputs": {
+                "model": nn.Linear(1, 1),
+                "loss_fn": nn.MSELoss(),
+                "optimizer": optim.SGD([torch.nn.Parameter(torch.zeros(1))], lr=0.01),
+                "X": torch.ones(5, 1),
+                "y": torch.ones(5, 1),
+                "epochs": 1,
+            },
+            "check": lambda r: abs(t3_pred - 6.0) < 1.0,
+            "fail_msg": lambda r: f"expected prediction ~6 for x=3, got {t3_pred:.2f}",
+        },
+        {
+            "name": "works with small dataset",
+            "inputs": {
+                "model": t4_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t4_optimizer,
+                "X": t4_X,
+                "y": t4_y,
+                "epochs": 10,
+            },
+            "check": lambda r: isinstance(r, float) and r >= 0,
+            "fail_msg": lambda r: f"expected non-negative loss, got {r}",
+        },
+        {
+            "name": "works with single epoch",
+            "inputs": {
+                "model": t5_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t5_optimizer,
+                "X": t5_X,
+                "y": t5_y,
+                "epochs": 1,
+            },
+            "check": lambda r: r is not None,
+            "fail_msg": "should work with single epoch",
+        },
+        {
+            "name": "gradients cleared correctly (zero_grad)",
+            "inputs": {
+                "model": t6_model,
+                "loss_fn": nn.MSELoss(),
+                "optimizer": t6_optimizer,
+                "X": t6_X,
+                "y": t6_y,
+                "epochs": 100,
+            },
+            "check": lambda r: r < 0.01,
+            "fail_msg": lambda r: f"loss {r:.4f} > 0.01 after 100 epochs - did you forget zero_grad()?",
+        },
+    ]
+
+    run_all("basic_training_loop", tests, solve)

@@ -1,16 +1,8 @@
-# implement breadth-first search
+# Graph BFS
 #
-# Given a graph (adjacency list) and a start node,
-# return a list of nodes in BFS traversal order.
+# Given a start node, return a list of nodes in BFS traversal order.
 #
-def bfs(graph: dict[str, list[str]], start: str) -> list[str]:
+# Node structure: node.val, node.neighbors (list of GraphNode)
+#
+def solve(start: "GraphNode | None") -> list:
     pass
-
-
-if __name__ == "__main__":
-    if __package__:
-        from .tests import run_tests
-    else:
-        from tests import run_tests
-
-    run_tests(bfs)

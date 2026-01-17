@@ -53,15 +53,9 @@ def create_test_adapters(output_dir: str):
     return peft_model
 
 
-def run_tests(export_to_gguf_func):
-    """
-    Test suite for GGUF export exercise.
-
-    Args:
-        export_to_gguf_func: A function that takes (model_name, adapter_path, output_path, llama_cpp_path, quantization)
-                            and returns the path to the exported GGUF file.
-    """
-    print(f"Running tests for {export_to_gguf_func.__name__}...\n")
+def run_tests(func):
+    """Test suite for GGUF export exercise."""
+    print(f"Running tests for {func.__name__}...\n")
 
     llama_cpp = check_llama_cpp()
     if llama_cpp is None:
@@ -86,7 +80,7 @@ def run_tests(export_to_gguf_func):
 
         output_path = os.path.join(tmpdir, "model")
 
-        result = export_to_gguf_func(
+        result = func(
             model_name=TEST_MODEL,
             adapter_path=adapter_path,
             output_path=output_path,
@@ -111,7 +105,7 @@ def run_tests(export_to_gguf_func):
 
         output_path = os.path.join(tmpdir, "model")
 
-        result = export_to_gguf_func(
+        result = func(
             model_name=TEST_MODEL,
             adapter_path=adapter_path,
             output_path=output_path,
@@ -136,7 +130,7 @@ def run_tests(export_to_gguf_func):
 
         # Export F16
         output_f16 = os.path.join(tmpdir, "model_f16")
-        result_f16 = export_to_gguf_func(
+        result_f16 = func(
             model_name=TEST_MODEL,
             adapter_path=adapter_path,
             output_path=output_f16,
@@ -146,7 +140,7 @@ def run_tests(export_to_gguf_func):
 
         # Export Q4_K_M
         output_q4 = os.path.join(tmpdir, "model_q4")
-        result_q4 = export_to_gguf_func(
+        result_q4 = func(
             model_name=TEST_MODEL,
             adapter_path=adapter_path,
             output_path=output_q4,

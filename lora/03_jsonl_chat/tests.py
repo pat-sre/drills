@@ -52,15 +52,9 @@ def create_sample_jsonl(path: str):
             f.write(json.dumps(sample) + "\n")
 
 
-def run_tests(train_lora_chat_func):
-    """
-    Test suite for JSONL chat fine-tuning exercise.
-
-    Args:
-        train_lora_chat_func: A function that takes (model_name, jsonl_path, output_dir, epochs, batch_size)
-                             and returns a trained PeftModel.
-    """
-    print(f"Running tests for {train_lora_chat_func.__name__}...\n")
+def run_tests(func):
+    """Test suite for JSONL chat fine-tuning exercise."""
+    print(f"Running tests for {func.__name__}...\n")
 
     # Test 1: Returns a PeftModel
     print("Test 1: Checking return type...")
@@ -69,7 +63,7 @@ def run_tests(train_lora_chat_func):
         create_sample_jsonl(jsonl_path)
         output_dir = os.path.join(tmpdir, "adapters")
 
-        result = train_lora_chat_func(
+        result = func(
             model_name=TEST_MODEL,
             jsonl_path=jsonl_path,
             output_dir=output_dir,
@@ -90,7 +84,7 @@ def run_tests(train_lora_chat_func):
         create_sample_jsonl(jsonl_path)
         output_dir = os.path.join(tmpdir, "adapters")
 
-        train_lora_chat_func(
+        func(
             model_name=TEST_MODEL,
             jsonl_path=jsonl_path,
             output_dir=output_dir,
@@ -117,7 +111,7 @@ def run_tests(train_lora_chat_func):
         create_sample_jsonl(jsonl_path)
         output_dir = os.path.join(tmpdir, "adapters")
 
-        peft_model = train_lora_chat_func(
+        peft_model = func(
             model_name=TEST_MODEL,
             jsonl_path=jsonl_path,
             output_dir=output_dir,
@@ -151,7 +145,7 @@ def run_tests(train_lora_chat_func):
         create_sample_jsonl(jsonl_path)
         output_dir = os.path.join(tmpdir, "adapters")
 
-        peft_model = train_lora_chat_func(
+        peft_model = func(
             model_name=TEST_MODEL,
             jsonl_path=jsonl_path,
             output_dir=output_dir,
@@ -227,7 +221,7 @@ def run_tests(train_lora_chat_func):
         output_dir = os.path.join(tmpdir, "adapters")
 
         # Should not raise an error
-        result = train_lora_chat_func(
+        result = func(
             model_name=TEST_MODEL,
             jsonl_path=jsonl_path,
             output_dir=output_dir,

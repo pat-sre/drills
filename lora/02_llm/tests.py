@@ -9,15 +9,9 @@ from peft import PeftModel
 TEST_MODEL = "Qwen/Qwen2.5-0.5B"
 
 
-def run_tests(train_lora_llm_func):
-    """
-    Test suite for LLM LoRA fine-tuning exercise.
-
-    Args:
-        train_lora_llm_func: A function that takes (model_name, dataset, output_dir, epochs, batch_size)
-                            and returns a trained PeftModel.
-    """
-    print(f"Running tests for {train_lora_llm_func.__name__}...\n")
+def run_tests(func):
+    """Test suite for LLM LoRA fine-tuning exercise."""
+    print(f"Running tests for {func.__name__}...\n")
 
     # Load wikitext - use a small subset for fast testing
     print("Loading wikitext dataset...")
@@ -28,7 +22,7 @@ def run_tests(train_lora_llm_func):
     # Test 1: Returns a PeftModel
     print("Test 1: Checking return type...")
     with tempfile.TemporaryDirectory() as tmpdir:
-        result = train_lora_llm_func(
+        result = func(
             model_name=TEST_MODEL,
             dataset=dataset,
             output_dir=tmpdir,
@@ -45,7 +39,7 @@ def run_tests(train_lora_llm_func):
     # Test 2: LoRA adapters are saved to disk
     print("Test 2: Checking adapters saved...")
     with tempfile.TemporaryDirectory() as tmpdir:
-        train_lora_llm_func(
+        func(
             model_name=TEST_MODEL,
             dataset=dataset,
             output_dir=tmpdir,
@@ -68,7 +62,7 @@ def run_tests(train_lora_llm_func):
     # Test 3: Only LoRA parameters are trainable
     print("Test 3: Checking trainable parameters...")
     with tempfile.TemporaryDirectory() as tmpdir:
-        peft_model = train_lora_llm_func(
+        peft_model = func(
             model_name=TEST_MODEL,
             dataset=dataset,
             output_dir=tmpdir,
@@ -98,7 +92,7 @@ def run_tests(train_lora_llm_func):
     with tempfile.TemporaryDirectory() as tmpdir:
         from transformers import AutoTokenizer
 
-        peft_model = train_lora_llm_func(
+        peft_model = func(
             model_name=TEST_MODEL,
             dataset=dataset,
             output_dir=tmpdir,

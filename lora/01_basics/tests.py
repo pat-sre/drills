@@ -1,5 +1,4 @@
 import os
-import shutil
 import tempfile
 
 import torch
@@ -18,15 +17,9 @@ class SimpleModel(nn.Module):
         return self.linear(x)
 
 
-def run_tests(train_lora_func):
-    """
-    Test suite for LoRA basics exercise.
-
-    Args:
-        train_lora_func: A function that takes (model, X, y, save_path, epochs, lr)
-                        and returns a trained PeftModel.
-    """
-    print(f"Running tests for {train_lora_func.__name__}...\n")
+def run_tests(func):
+    """Test suite for LoRA basics exercise."""
+    print(f"Running tests for {func.__name__}...\n")
 
     # Test 1: Returns a PeftModel
     torch.manual_seed(42)
@@ -36,7 +29,7 @@ def run_tests(train_lora_func):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         save_path = os.path.join(tmpdir, "lora_adapters")
-        result = train_lora_func(model, X, y, save_path)
+        result = func(model, X, y, save_path)
 
         assert result is not None, "Test 1 failed: function should return a model"
         assert isinstance(result, PeftModel), (
@@ -50,7 +43,7 @@ def run_tests(train_lora_func):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         save_path = os.path.join(tmpdir, "lora_adapters")
-        train_lora_func(model, X, y, save_path)
+        func(model, X, y, save_path)
 
         assert os.path.exists(save_path), (
             f"Test 2 failed: save_path '{save_path}' does not exist"
@@ -74,7 +67,7 @@ def run_tests(train_lora_func):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         save_path = os.path.join(tmpdir, "lora_adapters")
-        peft_model = train_lora_func(model, X, y, save_path, epochs=100)
+        peft_model = func(model, X, y, save_path, epochs=100)
 
         with torch.no_grad():
             pred = peft_model(torch.tensor([[0.5]])).item()
@@ -90,7 +83,7 @@ def run_tests(train_lora_func):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         save_path = os.path.join(tmpdir, "lora_adapters")
-        peft_model = train_lora_func(model, X, y, save_path, epochs=1)
+        peft_model = func(model, X, y, save_path, epochs=1)
 
         trainable_params = sum(
             p.numel() for p in peft_model.parameters() if p.requires_grad
@@ -108,7 +101,7 @@ def run_tests(train_lora_func):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         save_path = os.path.join(tmpdir, "lora_adapters")
-        trained_model = train_lora_func(model, X, y, save_path, epochs=100)
+        trained_model = func(model, X, y, save_path, epochs=100)
 
         # Get prediction from trained model
         with torch.no_grad():
