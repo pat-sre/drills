@@ -1,4 +1,7 @@
+import math
+
 import torch
+import torch.nn.functional as func
 
 
 def solve(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
@@ -15,6 +18,4 @@ def solve(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
     Returns:
         Attention output of shape (seq_len, d_v)
     """
-    softmax_numerator = torch.nn.Softmax(Q @ K.transpose)
-    print(Q.shape, K.shape)
-    softmax_denominator = 1
+    pass

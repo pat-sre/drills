@@ -13,5 +13,19 @@
 #
 # Node structure: node.val, node.left, node.right
 #
+from collections import deque
+
+
 def solve(root: "Tree | None") -> list:
-    pass
+    if not root:
+        return []
+    nodes = []
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        nodes.append(node)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return nodes

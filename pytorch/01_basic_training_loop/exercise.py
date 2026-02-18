@@ -20,6 +20,12 @@ def solve(
     optimizer: torch.optim.Optimizer,
     X: torch.Tensor,
     y: torch.Tensor,
-    epochs: int = 1,
+    epochs: int = 3,
 ) -> float:
-    pass
+    for _ in range(epochs):
+        model.zero_grad()
+        out = model(X)
+        loss = loss_fn(out, y)
+        loss.backward()
+        optimizer.step()
+    return loss.item()
