@@ -1,24 +1,22 @@
 import heapq
+from collections import defaultdict
 
 
-def solve(start):
-    if start is None:
-        return {}
+def solve(edges, source):
+    graph = defaultdict(list)
+    for u, v, w in edges:
+        graph[u].append((v, w))
+    min_distance = {source: 0}
+    min_heap = [(0, source)]
 
-    distances = {start: 0}
-    pq = [(0, id(start), start)]
-
-    while pq:
-        dist, _, node = heapq.heappop(pq)
-
-        if dist > distances.get(node, float("inf")):
+    while min_heap:
+        current_distance, current_node = heapq.heappop(min_heap)
+        if current_distance > min_distance[current_node]:
             continue
+        for neighbor, weight in graph[current_node]:
+            new_distance = current_distance + weight
+            if neighbor not in min_distance or new_distance < min_distance[neighbor]:
+                min_distance[neighbor] = new_distance
+                heapq.heappush(min_heap, (new_distance, neighbor))
 
-        for neighbor, weight in node.neighbors:
-            new_dist = dist + weight
-
-            if new_dist < distances.get(neighbor, float("inf")):
-                distances[neighbor] = new_dist
-                heapq.heappush(pq, (new_dist, id(neighbor), neighbor))
-
-    return {node: dist for node, dist in distances.items()}
+    return min_distance

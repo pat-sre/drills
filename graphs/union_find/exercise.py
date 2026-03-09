@@ -13,10 +13,10 @@ class UnionFind:
     def __init__(self, n):
         pass
 
-    def find(self, x):
+    def find(self, idx):
         pass
 
-    def union(self, x, y):
+    def union(self, u, v):
         pass
 
 

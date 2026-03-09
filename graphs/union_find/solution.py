@@ -1,23 +1,24 @@
 class UnionFind:
     def __init__(self, n):
         self.parent = list(range(n))
-        self.rank = [0] * n
+        self.size = [1] * n
+        self.total_components = n
 
-    def find(self, x):
-        if self.parent[x] != x:
-            self.parent[x] = self.find(self.parent[x])  # path compression
-        return self.parent[x]
+    def find(self, idx):
+        if self.parent[idx] != idx:
+            self.parent[idx] = self.find(self.parent[idx])
+        return self.parent[idx]
 
-    def union(self, x, y):
-        root_x, root_y = self.find(x), self.find(y)
-        if root_x == root_y:
-            return False  # already connected
-        if self.rank[root_x] < self.rank[root_y]:
-            root_x, root_y = root_y, root_x
-        self.parent[root_y] = root_x
-        if self.rank[root_x] == self.rank[root_y]:
-            self.rank[root_x] += 1
-        return True  # merged two components
+    def union(self, u, v):
+        root_u, root_v = self.find(u), self.find(v)
+        if root_u == root_v:
+            return False
+        if self.size[root_u] < self.size[root_v]:
+            root_u, root_v = root_v, root_u
+        self.parent[root_v] = root_u
+        self.size[root_u] += self.size[root_v]
+        self.total_components -= 1
+        return True
 
 
 solve = UnionFind

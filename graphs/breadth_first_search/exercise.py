@@ -4,5 +4,8 @@
 #
 # Node structure: node.val, node.neighbors (list of GraphNode)
 #
+from collections import deque
+
+
 def solve(start: "GraphNode | None") -> list:
     pass

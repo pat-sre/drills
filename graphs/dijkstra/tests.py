@@ -1,113 +1,114 @@
-from graphs.test_utils import make_graph, single_node
 from test_utils import run_all
 
 
 def run_tests(solve):
-    # Build test graphs (weighted)
-    g3 = make_graph([("A", "B", 5)])
-    g4 = make_graph([("A", "B", 1), ("B", "C", 2), ("C", "D", 3)])
-    g5 = make_graph([("A", "B", 1), ("A", "C", 10), ("B", "C", 3)])
-    g6 = make_graph([("A", "B", 5)], directed=True)
-    g7 = make_graph([("A", "B", 1), ("A", "C", 4), ("B", "D", 1), ("C", "D", 1)])
-    g8 = make_graph([("A", "B", 1), ("B", "C", 2), ("C", "A", 10)], directed=True)
-    g9 = make_graph([(1, 2, 5), (1, 3, 2), (3, 2, 1)])
-    g10 = make_graph([("A", "B", 0), ("A", "C", 5), ("B", "C", 1)])
-    g11 = make_graph(
-        [
-            ("A", "B", 4),
-            ("A", "C", 2),
-            ("B", "C", 1),
-            ("B", "D", 5),
-            ("C", "D", 8),
-            ("C", "E", 10),
-            ("D", "E", 2),
-            ("D", "F", 6),
-            ("E", "F", 3),
-        ]
-    )
-    g12 = make_graph([("A", "B", 1.5), ("A", "C", 2.5), ("B", "C", 0.5)])
-    g13 = make_graph(
-        [("center", "a", 1), ("center", "b", 2), ("center", "c", 3), ("center", "d", 4)]
-    )
+    # --- Edge lists ---
+    edges_two = [("A", "B", 5)]
+    edges_chain = [("A", "B", 1), ("B", "C", 2), ("C", "D", 3)]
+
+    # Triangle: direct A->C costs 10, but A->B->C costs 1+2=3
+    edges_triangle = [("A", "B", 1), ("A", "C", 10), ("B", "C", 2)]
+
+    # Diamond: two paths from A to D
+    #   A->B->D = 1+6 = 7
+    #   A->C->D = 5+1 = 6  (shorter)
+    edges_diamond = [("A", "B", 1), ("A", "C", 5), ("B", "D", 6), ("C", "D", 1)]
+
+    # Relaxation: A->B direct=10, but A->C->B = 3+2 = 5 (must update B)
+    edges_relax = [("A", "B", 10), ("A", "C", 3), ("C", "B", 2)]
+
+    # Zero-weight edge
+    edges_zero = [("A", "B", 0), ("B", "C", 3)]
+
+    # Directed (solve builds a directed graph by default)
+    edges_directed = [("A", "B", 1), ("B", "C", 2)]
+
+    # Larger directed graph (6 nodes, 9 edges)
+    edges_large = [
+        ("A", "B", 4), ("A", "C", 2),
+        ("C", "B", 1), ("B", "D", 3), ("B", "E", 1),
+        ("C", "D", 5), ("D", "E", 2), ("D", "F", 6),
+        ("E", "F", 3),
+    ]
 
     tests = [
+        # 1. Edge case: no edges, single source
         {
-            "name": "None input",
-            "inputs": {"start": None},
-            "check": lambda r: r == {},
-            "fail_msg": lambda r: f"expected {{}}, got {r}",
-        },
-        {
-            "name": "single node",
-            "inputs": {"start": single_node("A")},
+            "name": "single node (distance to self is 0)",
+            "inputs": {"edges": [], "source": "A"},
             "check": lambda r: r == {"A": 0},
             "fail_msg": lambda r: f"expected {{'A': 0}}, got {r}",
         },
+        # 2. Simplest weighted edge
         {
-            "name": "two connected nodes",
-            "inputs": {"start": g3["A"]},
+            "name": "two nodes",
+            "inputs": {"edges": edges_two, "source": "A"},
             "check": lambda r: r == {"A": 0, "B": 5},
             "fail_msg": lambda r: f"expected {{'A': 0, 'B': 5}}, got {r}",
         },
+        # 3. Distances accumulate
         {
-            "name": "linear graph",
-            "inputs": {"start": g4["A"]},
+            "name": "linear chain (distances accumulate)",
+            "inputs": {"edges": edges_chain, "source": "A"},
             "check": lambda r: r == {"A": 0, "B": 1, "C": 3, "D": 6},
             "fail_msg": lambda r: f"expected {{'A': 0, 'B': 1, 'C': 3, 'D': 6}}, got {r}",
         },
+        # 4. Core insight: indirect path can be shorter
         {
-            "name": "finds shorter path",
-            "inputs": {"start": g5["A"]},
-            "check": lambda r: r == {"A": 0, "B": 1, "C": 4},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 1, 'C': 4}}, got {r}",
-        },
-        {
-            "name": "directed graph",
-            "inputs": {"start": g6["A"]},
-            "check": lambda r: r == {"A": 0, "B": 5},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 5}}, got {r}",
-        },
-        {
-            "name": "multiple paths (finds optimal)",
-            "inputs": {"start": g7["A"]},
-            "check": lambda r: r == {"A": 0, "B": 1, "C": 3, "D": 2},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 1, 'C': 3, 'D': 2}}, got {r}",
-        },
-        {
-            "name": "directed cycle",
-            "inputs": {"start": g8["A"]},
+            "name": "triangle (indirect path beats direct)",
+            "inputs": {"edges": edges_triangle, "source": "A"},
             "check": lambda r: r == {"A": 0, "B": 1, "C": 3},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 1, 'C': 3}}, got {r}",
+            "fail_msg": lambda r: (
+                f"A->C direct=10, but A->B->C=3. expected {{'A': 0, 'B': 1, 'C': 3}}, got {r}"
+            ),
         },
+        # 5. Two paths, pick the shorter
         {
-            "name": "numeric node values",
-            "inputs": {"start": g9[1]},
-            "check": lambda r: r == {1: 0, 2: 3, 3: 2},
-            "fail_msg": lambda r: f"expected {{1: 0, 2: 3, 3: 2}}, got {r}",
+            "name": "diamond (two paths to D, pick shorter)",
+            "inputs": {"edges": edges_diamond, "source": "A"},
+            "check": lambda r: r == {"A": 0, "B": 1, "C": 5, "D": 6},
+            "fail_msg": lambda r: (
+                f"A->B->D=7, A->C->D=6. expected {{'A': 0, 'B': 1, 'C': 5, 'D': 6}}, got {r}"
+            ),
         },
+        # 6. Key concept: must relax/update a previously seen distance
         {
-            "name": "zero weight edge",
-            "inputs": {"start": g10["A"]},
-            "check": lambda r: r == {"A": 0, "B": 0, "C": 1},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 0, 'C': 1}}, got {r}",
+            "name": "relaxation (must update B from 10 to 5)",
+            "inputs": {"edges": edges_relax, "source": "A"},
+            "check": lambda r: r == {"A": 0, "B": 5, "C": 3},
+            "fail_msg": lambda r: (
+                f"A->B=10 direct, but A->C->B=5. expected {{'A': 0, 'B': 5, 'C': 3}}, got {r}"
+            ),
         },
+        # 7. Zero-weight edges are valid
         {
-            "name": "larger graph",
-            "inputs": {"start": g11["A"]},
-            "check": lambda r: r == {"A": 0, "B": 3, "C": 2, "D": 8, "E": 10, "F": 13},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 3, 'C': 2, 'D': 8, 'E': 10, 'F': 13}}, got {r}",
+            "name": "zero-weight edge",
+            "inputs": {"edges": edges_zero, "source": "A"},
+            "check": lambda r: r == {"A": 0, "B": 0, "C": 3},
+            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 0, 'C': 3}}, got {r}",
         },
+        # 8. Directed: some nodes are unreachable
         {
-            "name": "float weights",
-            "inputs": {"start": g12["A"]},
-            "check": lambda r: r == {"A": 0, "B": 1.5, "C": 2.0},
-            "fail_msg": lambda r: f"expected {{'A': 0, 'B': 1.5, 'C': 2.0}}, got {r}",
+            "name": "directed graph (unreachable nodes excluded)",
+            "inputs": {"edges": edges_directed, "source": "B"},
+            "check": lambda r: r == {"B": 0, "C": 2},
+            "fail_msg": lambda r: f"A is unreachable from B. expected {{'B': 0, 'C': 2}}, got {r}",
         },
+        # 9. Can start from any node in chain
         {
-            "name": "star graph",
-            "inputs": {"start": g13["center"]},
-            "check": lambda r: r == {"center": 0, "a": 1, "b": 2, "c": 3, "d": 4},
-            "fail_msg": lambda r: f"expected {{'center': 0, 'a': 1, 'b': 2, 'c': 3, 'd': 4}}, got {r}",
+            "name": "start from middle of chain",
+            "inputs": {"edges": edges_chain, "source": "B"},
+            "check": lambda r: r == {"B": 0, "C": 2, "D": 5},
+            "fail_msg": lambda r: f"expected {{'B': 0, 'C': 2, 'D': 5}}, got {r}",
+        },
+        # 10. Larger graph combining multiple concepts
+        {
+            "name": "larger graph (relaxation + directed + multi-hop)",
+            "inputs": {"edges": edges_large, "source": "A"},
+            "check": lambda r: r == {"A": 0, "B": 3, "C": 2, "D": 6, "E": 4, "F": 7},
+            "fail_msg": lambda r: (
+                f"expected {{'A': 0, 'B': 3, 'C': 2, 'D': 6, 'E': 4, 'F': 7}}, got {r}"
+            ),
         },
     ]
 

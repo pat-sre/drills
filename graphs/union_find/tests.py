@@ -13,6 +13,11 @@ def run_tests(UnionFind):
                 results.append(uf.union(op[1], op[2]))
             elif op[0] == "parent":
                 results.append(uf.parent[op[1]])
+            elif op[0] == "components":
+                results.append(uf.total_components)
+            elif op[0] == "size":
+                root = uf.find(op[1])
+                results.append(uf.size[root])
         return results
 
     tests = [
@@ -103,6 +108,27 @@ def run_tests(UnionFind):
             ),
         },
         {
+            "name": "total_components tracking",
+            "inputs": {
+                "n": 5,
+                "ops": [
+                    ("components",),
+                    ("union", 0, 1),
+                    ("components",),
+                    ("union", 2, 3),
+                    ("components",),
+                    ("union", 0, 2),
+                    ("components",),
+                    ("union", 0, 1),  # redundant
+                    ("components",),
+                ],
+            },
+            "check": lambda r: r == [5, True, 4, True, 3, True, 2, False, 2],
+            "fail_msg": lambda r: (
+                f"expected [5, True, 4, True, 3, True, 2, False, 2], got {r}"
+            ),
+        },
+        {
             "name": "path compression",
             "inputs": {
                 "n": 4,
@@ -120,23 +146,31 @@ def run_tests(UnionFind):
             ),
         },
         {
-            "name": "union by rank (smaller under larger)",
+            "name": "union by size (smaller under larger)",
             "inputs": {
-                "n": 6,
+                "n": 7,
                 "ops": [
-                    # Build a tree of rank 1: {0, 1, 2}
+                    # Build size-4 tree A rooted at 0
                     ("union", 0, 1),
                     ("union", 0, 2),
-                    # Single element: {3}
-                    # Union single into larger tree
-                    ("union", 3, 0),
-                    ("find", 3),
+                    ("union", 0, 3),
+                    # Build size-2 tree B rooted at 4
+                    ("union", 4, 5),
+                    # Union B into A — size-based must pick A's root
+                    ("union", 4, 0),
+                    ("find", 4),
                     ("find", 0),
+                    # Verify size of merged component
+                    ("size", 0),
                 ],
             },
-            "check": lambda r: r[3] == r[4],
+            "check": lambda r: (
+                r[5] == r[6]  # same root
+                and r[6] == 0  # root is A's root (0), the larger tree
+                and r[7] == 6  # merged size
+            ),
             "fail_msg": lambda r: (
-                f"expected 3 under 0's root, got find(3)={r[3]}, find(0)={r[4]}"
+                f"expected smaller tree under larger, root=0, size=6; got find(4)={r[5]}, find(0)={r[6]}, size={r[7]}"
             ),
         },
         {
