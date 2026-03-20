@@ -7,20 +7,24 @@
 # Do not modify the input list.
 #
 # Examples:
-#   [1, 2, 3] -> [1, 3, 2]
-#   [3, 2, 1] -> [1, 2, 3]
-#   [1, 1, 5] -> [1, 5, 1]
+#   [2, 3, 6, 5, 4, 1] -> [2, 4, 1, 3, 5, 6]
+#   [2, 5, 4, 3, 1] -> [3, 1, 2, 4, 5]
+#   [1, 3, 5, 4, 2] -> [1, 4, 2, 3, 5]
 #
 # Algorithm:
 #   1. Find the pivot. Scan right-to-left, find the first element where nums[i] < nums[i+1].
 #       Everything to the right of this is descending — meaning that suffix is already at its last permutation.
-#       There's nothing "next" within it alone.
-#   2. Swap pivot with the smallest larger element to its right.
-#       Scan right-to-left again from the end, find the first element bigger than pivot.
+#   2. Scan right-to-left again from the end, find the first element bigger than pivot.
 #       Swap them.
 #   3. Reverse the suffix after the pivot's position.
-#       The suffix was descending (largest permutation of those digits) — reversing makes it ascending (smallest permutation).
-#       This gives the next overall permutation, not some arbitrary larger one.
 #
+
+
 def solve(nums: list[int]) -> list[int]:
-    pass
+    i = len(nums) - 2
+    while i >= 0 and nums[i] > nums[i + 1]:
+        i -= 1
+    print(nums[i], nums[i + 1])
+
+    nums[i + 1 :] = nums[i + 1 :][::-1]
+    return nums

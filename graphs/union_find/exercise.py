@@ -10,14 +10,7 @@
 #             Return True if merged, False if already in the same set.
 #
 class UnionFind:
-    def __init__(self, n):
-        pass
-
-    def find(self, idx):
-        pass
-
-    def union(self, u, v):
-        pass
+    pass
 
 
 solve = UnionFind

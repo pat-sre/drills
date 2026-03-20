@@ -2,7 +2,7 @@ class UnionFind:
     def __init__(self, n):
         self.parent = list(range(n))
         self.size = [1] * n
-        self.total_components = n
+        self.component_count = n
 
     def find(self, idx):
         if self.parent[idx] != idx:
@@ -17,7 +17,7 @@ class UnionFind:
             root_u, root_v = root_v, root_u
         self.parent[root_v] = root_u
         self.size[root_u] += self.size[root_v]
-        self.total_components -= 1
+        self.component_count -= 1
         return True
 
 

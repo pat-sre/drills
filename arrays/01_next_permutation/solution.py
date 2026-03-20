@@ -7,7 +7,7 @@ def solve(nums):
         i -= 1
 
     if i >= 0:
-        # Step 2: find largest j > i where result[i] < result[j]
+        # Step 2: find first larger value than nums[i] from the right
         j = len(result) - 1
         while result[j] <= result[i]:
             j -= 1

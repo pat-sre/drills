@@ -7,7 +7,7 @@ def solve(nums):
 
 
 def selection_sort(nums):
-    for i in range(len(nums)):
+    for i in range(len(nums) - 1):
         min_idx = i
         for j in range(i + 1, len(nums)):
             if nums[j] < nums[min_idx]:
