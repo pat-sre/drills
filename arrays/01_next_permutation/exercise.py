@@ -21,10 +21,4 @@
 
 
 def solve(nums: list[int]) -> list[int]:
-    i = len(nums) - 2
-    while i >= 0 and nums[i] > nums[i + 1]:
-        i -= 1
-    print(nums[i], nums[i + 1])
-
-    nums[i + 1 :] = nums[i + 1 :][::-1]
-    return nums
+    pass

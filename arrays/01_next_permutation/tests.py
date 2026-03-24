@@ -64,10 +64,16 @@ def run_tests(solve):
             "fail_msg": lambda r: f"expected [1, 2, 4, 3, 5], got {r}",
         },
         {
-            "name": "does not modify input",
-            "inputs": {"nums": [1, 2, 3]},
-            "check": lambda r: r == [1, 3, 2],
-            "fail_msg": lambda r: f"expected [1, 3, 2], got {r}",
+            "name": "duplicates in non-increasing suffix [1, 5, 5, 4, 3]",
+            "inputs": {"nums": [1, 5, 5, 4, 3]},
+            "check": lambda r: r == [3, 1, 4, 5, 5],
+            "fail_msg": lambda r: f"expected [3, 1, 4, 5, 5], got {r}",
+        },
+        {
+            "name": "pivot duplicate in suffix [2, 5, 2, 1]",
+            "inputs": {"nums": [2, 5, 2, 1]},
+            "check": lambda r: r == [5, 1, 2, 2],
+            "fail_msg": lambda r: f"expected [5, 1, 2, 2], got {r}",
         },
     ]
 

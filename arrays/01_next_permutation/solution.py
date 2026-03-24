@@ -15,6 +15,10 @@ def solve(nums):
         result[i], result[j] = result[j], result[i]
 
     # Step 4: reverse suffix starting at i+1
-    result[i + 1 :] = result[i + 1 :][::-1]
+    lo, hi = i + 1, len(result) - 1
+    while lo < hi:
+        result[lo], result[hi] = result[hi], result[lo]
+        lo += 1
+        hi -= 1
 
     return result
