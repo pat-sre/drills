@@ -126,6 +126,15 @@ def run_tests(solve):
             "fail_msg": lambda r: f"not a valid topological order: {r}",
         },
         {
+            "name": "cycle detection (A->B->C->A)",
+            "inputs": {
+                "nodes": ["A", "B", "C"],
+                "edges": [("A", "B"), ("B", "C"), ("C", "A")],
+            },
+            "check": lambda r: len(r) < 3,
+            "fail_msg": lambda r: f"graph has a cycle, expected incomplete order (len < 3), got {r}",
+        },
+        {
             "name": "larger DAG (8 nodes)",
             "inputs": {
                 "nodes": ["A", "B", "C", "D", "E", "F", "G", "H"],

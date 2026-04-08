@@ -17,7 +17,7 @@
 #   - Use a queue (collections.deque) — process nodes in FIFO order
 #   - When you process a node, decrement in-degrees of its neighbors
 
-from collections import deque, defaultdict
+from collections import defaultdict, deque
 
 
 def solve(nodes: list, edges: list) -> list:
