@@ -26,5 +26,10 @@ import random
 def solve(nums: list[int | float]) -> list[int | float]:
     if not nums:
         return nums
-    nums_to_sort = nums[:]
+    nums_copy = nums[:]
+    quicksort(0, len(nums_copy) - 1, nums_copy)
+    return nums_copy
+
+
+def quicksort(start, end, nums):
     pass

@@ -7,10 +7,6 @@
 #   nodes — list of node labels (e.g. ["A", "B", "C"])
 #   edges — list of (u, v, weight) tuples representing undirected edges
 #
-# Output:
-#   The total weight of the MST as an integer.
-#   If the graph is disconnected (no spanning tree exists), return -1.
-#
 # Hints:
 #   - Build an undirected adjacency list from the edge list
 #   - Use heapq for a min-priority queue seeded from the first node
@@ -20,5 +16,8 @@ import heapq
 from collections import defaultdict
 
 
+# Output:
+#   The total weight of the MST as an integer.
+#   If the graph is disconnected (no spanning tree exists), return -1.
 def solve(nodes: list, edges: list) -> int:
     pass
