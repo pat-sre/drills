@@ -14,4 +14,7 @@
 #       - Copy any remaining elements from whichever half isn't exhausted.
 #
 def solve(nums: list[int | float]) -> list[int | float]:
+    if not nums:
+        return []
+    nums_copy = nums[:]
     pass

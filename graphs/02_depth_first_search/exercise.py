@@ -4,5 +4,5 @@
 #
 # Node structure: node.val, node.neighbors (list of GraphNode)
 #
-def solve(start: "GraphNode | None") -> list:
+def solve(start) -> list:
     pass

@@ -3,19 +3,16 @@ def solve(start):
         return []
 
     result = []
-    visited = set()
+    visited = {start}
     stack = [start]
 
     while stack:
         node = stack.pop()
-
-        if node in visited:
-            continue
-        visited.add(node)
         result.append(node)
 
         for neighbor in reversed(node.neighbors):
             if neighbor not in visited:
+                visited.add(neighbor)
                 stack.append(neighbor)
 
     return result
