@@ -27,12 +27,6 @@
 #   t.search("app")         # True
 
 
-class TrieNode:
-    def __init__(self):
-        self.is_end = False
-        self.children = {}
-
-
 class Trie:
     def __init__(self):
         pass
